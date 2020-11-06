@@ -15,7 +15,11 @@
             {{description}}
         </p>
         <code>Rating: {{rating}} ({{rating_count}} reviews)</code>
-        <code>Author(s): {{authors}}</code>
+        {{#if hasMultipleAuthors}}
+            <code>Author(s): {{authorsList}}</code>
+        {{else}}
+            <code>Author(s): {{authors}}</code>
+        {{/if}}
         <code>Pages: {{pages}}</code>
         <code>Genres: {{genres}}</code>      
         

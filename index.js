@@ -4,6 +4,7 @@ const handlebars = require('express-handlebars');
 const mysql = require('mysql2/promise');
 const fetch = require('node-fetch');
 const withQuery = require('with-query').default;
+const morgan = require('morgan');
 
 //configure port
 const PORT = parseInt(process.argv[2]) || parseInt(process.env.PORT) || 3000;
@@ -14,7 +15,7 @@ app.engine('hbs', handlebars({defaultLayout: 'default.hbs'}));
 app.set('view engine','hbs');
 
 //SQL queries
-const alphabets = 'abcdefghijklmnopqrstuvwxyz'.toUpperCase().split('');
+const alphabets = 'abcdefghijklmnopqrstuvwxyz0123456789'.toUpperCase().split('');
 const SQL_GET_BOOKS_BY_LETTER = "select title, book_id from book2018 where title like ? limit ? offset ?"
 const SQL_GET_COUNT = "select count(*) as count from book2018 where title like ?"
 const SQL_GET_BOOK_BY_ID = "select * from book2018 where book_id = ?"
@@ -57,6 +58,9 @@ pool.getConnection().then(conn => {
 
 
 //Configure routes
+app.use(express.static(__dirname + '/public'));
+app.use(morgan('combined'));
+
 app.get('/', (req,res) => {
 
     try{    
@@ -79,15 +83,14 @@ app.get('/books', async (req,res) => {
     const conn = await pool.getConnection();
     let letter = req.query['startLetter'];
     let startLetter = `${letter}%`;
-    console.log(req.query)
-
+    console.log(!offset)
     try{
         const [books,_] = await conn.query(SQL_GET_BOOKS_BY_LETTER,[startLetter,limit,offset]); //books = [{title: A, book_id},{}...]
         const [count,__] = await conn.query(SQL_GET_COUNT,[startLetter]);
         const totalShows = count[0].count
         res.status(200);
         res.type('text/html');
-        res.render('bookTitles',{letter,books,prevOffset: Math.max(0,(offset-limit)),nextOffset: Math.min(totalShows,(offset+limit))});
+        res.render('bookTitles',{beginningPg:!offset, lastPg: offset>=totalShows,letter,books,prevOffset: Math.max(0,(offset-limit)),nextOffset: Math.min(totalShows,(offset+limit))});
 
     }catch(e){
 
@@ -106,15 +109,22 @@ app.get('/books/:id', async (req,res) => {
 
     const conn = await pool.getConnection();
     const book_id = req.params.id;
+    let authorsList; 
     
     try{
         const [result,_] = await conn.query(SQL_GET_BOOK_BY_ID,[book_id]);
         const bookDetails = result[0];
         const {title, authors, pages, rating, rating_count, genres, image_url, description} = bookDetails;
+        if(authors.includes('|') )
+        {
+            authorsList = authors.split('|')
+        }
         res.status(200);
         res.type('text/html');
-        res.render('bookDetails', {title, image_url, description, rating, rating_count, authors, pages, genres})
-    }
+        res.format({
+            'text/html': () => {res.render('bookDetails', {hasMultipleAuthors:authors.includes('|'),title, image_url, description, rating, rating_count, authors, pages, genres, authorsList})}
+           
+    })}
     catch(e){
         res.status(500);
         res.type('text/html');
@@ -133,11 +143,12 @@ app.get('/reviews/:title', async (req, res) => {
     const title = req.params.title;
     try {
 
-        const result = await searchReview(title);
-        console.log(result);
+        const rJSON = await searchReview(title);
+        const numReviews = rJSON.num_results;
+        const reviewObj = rJSON.results[0];
         res.status(200);
         res.type('text/html');
-        res.render('reviewsPage')
+        res.render('reviewsPage', {hasReviews: !!numReviews, reviewObj})
 
     }catch(e){
         res.status(404);
