@@ -1,0 +1,19 @@
+<h1>Letter {{letter}}</h1>
+
+{{#each books}}
+    <a href="/books/{{this.book_id}}"><h5>{{this.title}}</h5></a>
+{{/each}}
+
+<form action="/books" method="get">
+    <input type="hidden" name="startLetter" value="{{letter}}">
+    <input type="hidden" name="offset" value="{{prevOffset}}">
+    <button class="btn btn-primary" type="submit">Previous</button>
+</form>
+
+<form action="/books" method="get">
+                
+    <input type="hidden" name="offset" value="{{nextOffset}}">
+    <input type="hidden" name="startLetter" value="{{letter}}">
+    <button class="btn btn-primary" type="submit">Next</button>
+</form>
+                

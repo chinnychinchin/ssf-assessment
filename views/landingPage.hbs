@@ -1,0 +1,11 @@
+
+<form action="/books" method="get">
+    <div class="row row-cols-5">
+        {{#each alphabets}}
+        <div class="col">
+            <button class="btn btn-info" type="submit" name="startLetter" value="{{this}}" >{{this}}</button>
+        </div>
+        {{/each}}
+    </div>
+
+</form>
