@@ -2,6 +2,8 @@
 const express = require('express');
 const handlebars = require('express-handlebars');
 const mysql = require('mysql2/promise');
+const fetch = require('node-fetch');
+const withQuery = require('with-query').default;
 
 //configure port
 const PORT = parseInt(process.argv[2]) || parseInt(process.env.PORT) || 3000;
@@ -28,6 +30,17 @@ const pool = mysql.createPool({
     connectionLimit: 4,
     timezone: '+08:00'
 });
+
+//Configure API requests
+const API_KEY = process.env.API_KEY || "";
+const ENDPOINT = 'https://api.nytimes.com/svc/books/v3/reviews.json';
+const searchParams = (title) => {return { "api-key": API_KEY, title }} 
+const searchReview = async (title) => {
+    const url = withQuery(ENDPOINT, searchParams(title));
+    const result = await fetch(url);
+    const resultJSON = await result.json();
+    return resultJSON
+} 
 
 //Start server 
 pool.getConnection().then(conn => {
@@ -96,10 +109,11 @@ app.get('/books/:id', async (req,res) => {
     
     try{
         const [result,_] = await conn.query(SQL_GET_BOOK_BY_ID,[book_id]);
-        console.log(result);
+        const bookDetails = result[0];
+        const {title, authors, pages, rating, rating_count, genres, image_url, description} = bookDetails;
         res.status(200);
         res.type('text/html');
-        res.render('bookDetails')
+        res.render('bookDetails', {title, image_url, description, rating, rating_count, authors, pages, genres})
     }
     catch(e){
         res.status(500);
@@ -108,6 +122,27 @@ app.get('/books/:id', async (req,res) => {
     }
     finally{
         conn.release()
+    }
+
+})
+
+
+//Reviews route
+app.get('/reviews/:title', async (req, res) => {
+
+    const title = req.params.title;
+    try {
+
+        const result = await searchReview(title);
+        console.log(result);
+        res.status(200);
+        res.type('text/html');
+        res.render('reviewsPage')
+
+    }catch(e){
+        res.status(404);
+        res.type('text/html');
+        res.send(`Error 404: ${e}`)
     }
 
 })
