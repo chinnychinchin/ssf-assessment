@@ -122,7 +122,25 @@ app.get('/books/:id', async (req,res) => {
         res.status(200);
         res.type('text/html');
         res.format({
-            'text/html': () => {res.render('bookDetails', {hasMultipleAuthors:authors.includes('|'),title, image_url, description, rating, rating_count, authors, pages, genres, authorsList})}
+            'text/html': () => {res.render('bookDetails', {hasMultipleAuthors:authors.includes('|'),title, image_url, description, rating, rating_count, authors, pages, genres, authorsList})},
+            'application/json': () => {
+
+                let payload = {
+                    bookId: result.book_id,
+                    title: result.title,
+                    authors: result.authors,
+                    summary: result.description,
+                    pages: result.pages,
+                    rating: parseFloat(result.rating),
+                    ratingCount: result.rating_count,
+                    genre: result.genres,
+                  };
+                  res.json(payload);
+            },
+            'default': () => {
+                resp.status(406);
+                resp.send('Data type not accepted');
+                }
            
     })}
     catch(e){
