@@ -163,7 +163,8 @@ app.get('/reviews/:title', async (req, res) => {
 
         const rJSON = await searchReview(title);
         const numReviews = rJSON.num_results;
-        const reviewObj = rJSON.results[0];
+        const reviewObj = rJSON.results;
+        console.log(rJSON.results);
         res.status(200);
         res.type('text/html');
         res.render('reviewsPage', {hasReviews: !!numReviews, reviewObj})

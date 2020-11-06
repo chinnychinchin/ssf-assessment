@@ -1,12 +1,17 @@
 {{#if hasReviews}}
-    <h2>{{reviewObj.book_title}}</h2>
-    <h3><i>by {{reviewObj.book_author}}</i></h3>
-    <h3>Reviewer: {{reviewObj.byline}}</h3>
-    <h3>Date: {{reviewObj.publication_dt}}</h3>
-    <p class="lead">{{reviewObj.summary}}</p>
-    <a target="_blank" href="{{reviewObj.url}}">Full Review</a>
-    <br>
-    <a target="_blank" href="https://developer.nytimes.com"><img src="/poweredby_nytimes_200a.png" alt="nytimes logo"></a>
+    {{#each reviewObj}}
+
+        <h2>{{this.book_title}}</h2>
+        <h3><i>by {{this.book_author}}</i></h3>
+        <h3>Reviewer: {{this.byline}}</h3>
+        <h3>Date: {{this.publication_dt}}</h3>
+        <p class="lead">{{this.summary}}</p>
+        <a target="_blank" href="{{reviewObj.url}}">Full Review</a>
+        <br>
+        <a target="_blank" href="https://developer.nytimes.com"><img src="/poweredby_nytimes_200a.png" alt="nytimes logo"></a>
+        <br>
+        <code>Copyright (c) 2020 The New York Times Company. All Rights Reserved</code>
+    {{/each}}
 {{else}}
     <h2>There are no reviews for this book.</h2>
 {{/if}}
