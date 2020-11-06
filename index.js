@@ -90,7 +90,7 @@ app.get('/books', async (req,res) => {
         const totalShows = count[0].count
         res.status(200);
         res.type('text/html');
-        res.render('bookTitles',{beginningPg:!offset, lastPg: offset>=totalShows,letter,books,prevOffset: Math.max(0,(offset-limit)),nextOffset: Math.min(totalShows,(offset+limit))});
+        res.render('bookTitles',{beginningPg:!offset, lastPg: (offset+limit)>=totalShows,letter,books,prevOffset: Math.max(0,(offset-limit)),nextOffset: Math.min(totalShows,(offset+limit))});
 
     }catch(e){
 
