@@ -1,11 +1,24 @@
+<div class="row mt-3">
+    {{#each alphabets}}
+        <div class="col mb-3"> 
+            <form action="/books" method="get">
+                <button class="btn btn-success" type="submit" name="startLetter" value="{{this}}" >{{this}}</button>
+            </form>
+        </div> 
+    {{/each}}
 
-<form action="/books" method="get">
-    <div class="d-flex row mb-5 justify-content-between">
-        {{#each alphabets}}
+</div>
+
+
+
+
+
+
+
+   
         
-        <button class="btn btn-info" type="submit" name="startLetter" value="{{this}}" >{{this}}</button>
+        
+        
        
-        {{/each}}
-    </div>
-
-</form>
+        
+    
