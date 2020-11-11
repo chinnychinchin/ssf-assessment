@@ -1,3 +1,9 @@
+drop schema if exists goodreads;
+
+select "Creating goodreads database" as "";
+
+create database goodreads;
+
 use goodreads;
 
 select "Creating book2018 table" as "";
